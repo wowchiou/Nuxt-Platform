@@ -36,11 +36,8 @@ definePageMeta({
       <template #header>
         <p class="mt-2 text-gray-400">創建一個帳號</p>
         <div class="mt-2">
-          <el-button type="primary" size="large">
-            使用 Google 帳號註冊
-          </el-button>
+          <el-divider></el-divider>
         </div>
-        <el-divider></el-divider>
       </template>
 
       <el-form
