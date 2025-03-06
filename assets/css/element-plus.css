@@ -1,0 +1,3 @@
+.el-form-item__label {
+  @apply !text-slate-600;
+}

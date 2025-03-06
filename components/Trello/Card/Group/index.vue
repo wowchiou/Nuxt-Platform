@@ -1,0 +1,68 @@
+<script setup lang="ts">
+import { TrelloCardTasks } from '#components';
+import { VueDraggable, type SortableEvent } from 'vue-draggable-plus';
+
+const trelloStore = useTrelloStore();
+const { trelloLists } = storeToRefs(trelloStore);
+
+const lists = ref(trelloLists.value);
+
+const onUpdate = async (e: SortableEvent) => {
+  const { newIndex, oldIndex } = e;
+  await trelloStore.updateTrelloListsOrder(newIndex, oldIndex);
+};
+
+watch(trelloLists, (newVal) => {
+  lists.value = newVal;
+});
+</script>
+
+<template>
+  <VueDraggable
+    v-if="lists"
+    class="flex items-start"
+    ref="list"
+    v-model="lists"
+    group="task-group"
+    ghostClass="group-ghost"
+    :animation="150"
+    handle=".handle"
+    @update="onUpdate"
+  >
+    <TrelloCard
+      class="mr-2"
+      v-for="item in lists"
+      :data-id="item.id"
+      :key="`trello-group-${item.id}`"
+    >
+      <div class="task-header">
+        <div class="task-name handle">
+          <p class="ml-2 truncate flex-1 text-[14px] py-1">
+            {{ item.name }}
+          </p>
+        </div>
+        <div class="flex justify-end items-center">
+          <TrelloCardEditor class="cursor-pointer" :list="item" />
+        </div>
+      </div>
+
+      <TrelloCardTasks class="flex flex-col gap-y-2 mt-2" :listID="item.id!" />
+
+      <TrelloCardTasksCreator class="mt-5" :listID="item.id!" />
+    </TrelloCard>
+  </VueDraggable>
+</template>
+
+<style scoped>
+.group-ghost {
+  @apply bg-blue-400 text-white;
+}
+
+.task-header {
+  @apply flex justify-between items-center overflow-hidden cursor-move;
+}
+
+.task-name {
+  @apply w-[calc(100%-25px)] flex items-center duration-300 rounded-sm hover:bg-blue-400 hover:bg-opacity-10;
+}
+</style>

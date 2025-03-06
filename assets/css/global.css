@@ -1,0 +1,8 @@
+html,
+body {
+  @apply text-slate-600 bg-slate-200 tracking-wider;
+}
+
+.app-icon {
+  @apply text-xl opacity-50;
+}
