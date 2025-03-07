@@ -1,5 +1,7 @@
 import type { Tables } from '~/database/types';
 
+export type TrelloTables = 'trello_projects' | 'trello_lists' | 'trello_tasks';
+
 export interface TrelloLists extends Partial<Tables<'trello_lists'>> {
   trello_tasks?: Partial<Tables<'trello_tasks'>>[];
 }

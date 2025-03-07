@@ -11,6 +11,9 @@ type DragIndex = number | undefined;
 type RequiredTrelloTasks = Required<Tables<'trello_tasks'>>;
 
 export const useTrelloStore = defineStore('trello-store', () => {
+  const trelloProjects = ref<TrelloProjects[]>([]);
+  const activeTrello = ref('');
+
   const {
     sbSetTrelloProjects,
     sbGetTrelloProjects,
@@ -18,14 +21,13 @@ export const useTrelloStore = defineStore('trello-store', () => {
     sbAddTrelloTasks,
     sbSetTrelloListsOrder,
     sbSetTrelloTasksOrder,
-    sbDeleteByID,
     sbUpdateTrelloTasks,
     sbUpdateTrelloLists,
     sbUpdateTrelloProjects,
+    sbDeleteTrelloTasks,
+    sbDeleteTrelloLists,
+    sbDeleteTrelloProjects,
   } = useSupabase();
-
-  const trelloProjects = ref<TrelloProjects[]>([]);
-  const activeTrello = ref('');
 
   const trelloLists = computed(() => {
     return (
@@ -51,7 +53,7 @@ export const useTrelloStore = defineStore('trello-store', () => {
         project_id: res.data?.[0].id,
       };
     });
-    await addTrelloLists(addList);
+    await addTrelloLists(addList, false);
     await setTrello();
   }
 
@@ -63,21 +65,26 @@ export const useTrelloStore = defineStore('trello-store', () => {
     // 針對trello lists和trello tasks進行排序
     res.data.forEach((project) => {
       project.trello_lists = project.trello_lists?.sort(
-        (a, b) => a.order - b.order
+        (a, b) => a.order! - b.order!
       );
       project.trello_lists?.forEach((list) => {
         list.trello_tasks = list.trello_tasks?.sort(
-          (a, b) => a.order - b.order
+          (a, b) => a.order! - b.order!
         );
       });
     });
     trelloProjects.value = res?.data || [];
   }
 
-  async function addTrelloLists(list: TrelloProjectsAddData[]) {
+  async function addTrelloLists(
+    list: TrelloProjectsAddData[],
+    isSetTrello = true
+  ) {
     const res = await sbAddTrelloLists(list);
     if (res?.error) return false;
-    await setTrello();
+    // 如果需要獲取最新trello projects，則執行setTrello
+    if (isSetTrello) await setTrello();
+    return true;
   }
 
   async function addTrelloTasks(name: string, listID: string) {
@@ -120,9 +127,11 @@ export const useTrelloStore = defineStore('trello-store', () => {
     oldIndex: DragIndex;
   }) {
     const list = [...trelloLists.value].find((list) => list.id === listID);
-    if (!list) return;
-    const tasks = list.trello_tasks || [];
+
     if (newIndex === undefined || oldIndex === undefined) return;
+    if (!list) return;
+
+    const tasks = list.trello_tasks || [];
     const [removed] = tasks.splice(oldIndex, 1);
     tasks.splice(newIndex, 0, removed);
 
@@ -141,9 +150,12 @@ export const useTrelloStore = defineStore('trello-store', () => {
   }: DragTaskAddData) {
     const toList = [...trelloLists.value].find((list) => list.id === toID);
     const fromList = [...trelloLists.value].find((list) => list.id === fromID);
+
     if (!toList || !fromList) return;
+
     const toTasks = toList.trello_tasks || [];
     const fromTasks = fromList.trello_tasks || [];
+
     const [removed] = fromTasks.splice(fromIndex, 1);
     toTasks.splice(toIndex, 0, removed);
 
@@ -174,7 +186,7 @@ export const useTrelloStore = defineStore('trello-store', () => {
   }
 
   async function deleteTrelloTasks(id: string) {
-    const res = await sbDeleteByID('trello_tasks', id);
+    const res = await sbDeleteTrelloTasks(id);
     if (res?.error) return false;
     await setTrello();
   }
@@ -195,7 +207,7 @@ export const useTrelloStore = defineStore('trello-store', () => {
   }
 
   async function deleteTrelloLists(id: string) {
-    const res = await sbDeleteByID('trello_lists', id);
+    const res = await sbDeleteTrelloLists(id);
     if (res?.error) return false;
     await setTrello();
   }
@@ -207,7 +219,7 @@ export const useTrelloStore = defineStore('trello-store', () => {
   }
 
   async function deleteTrelloProjects(id: string) {
-    const res = await sbDeleteByID('trello_projects', id);
+    const res = await sbDeleteTrelloProjects(id);
     if (res?.error) return false;
     await setTrello();
   }

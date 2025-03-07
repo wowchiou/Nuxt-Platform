@@ -14,7 +14,7 @@ const openDialog = () => {
       </el-button>
     </el-tooltip>
 
-    <TrelloDialogCreateLists v-model="dialogVisible" />
+    <TrelloDialogCreateProject v-model="dialogVisible" />
   </div>
 </template>
 

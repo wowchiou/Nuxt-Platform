@@ -3,19 +3,19 @@ import type { Tables } from '~/database/types';
 import type { ProfileForm, Signin, Signup } from '~/types/auth';
 
 export const useAuthStore = defineStore('auth-store', () => {
-  const {
-    sbSignup,
-    sbSignin,
-    sbSignout,
-    sbGetSession,
-    sbGetProfile,
-    sbSetProfile,
-  } = useSupabase();
-
   const user = ref<User | null>(null);
   const profile = ref<Tables<'profiles'> | null>(null);
   const isAuthTracking = ref(false);
   const loadingProfile = ref(false);
+
+  const {
+    sbGetProfile,
+    sbGetSession,
+    sbSetProfile,
+    sbSignin,
+    sbSignout,
+    sbSignup,
+  } = useSupabase();
 
   // supabase 自身提供的監聽登入狀態，以此監聽統一設定登出、登入 auth 資訊
   async function trackAuthState() {
@@ -46,7 +46,9 @@ export const useAuthStore = defineStore('auth-store', () => {
   // 登入
   async function signin(form: Signin) {
     const { data } = await sbSignin(form);
-    if (data && data.user) return data;
+    if (data && data.user) {
+      return data;
+    }
     return false;
   }
 

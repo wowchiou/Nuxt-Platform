@@ -1,7 +1,15 @@
-import type { AuthError, PostgrestError } from '@supabase/supabase-js';
 import type { Tables } from '~/database/types';
 import type { ProfileForm } from '~/types/auth';
-import type { TrelloListsOrders, TrelloProjectsAddData } from '~/types/trello';
+import type {
+  AuthError,
+  PostgrestError,
+  PostgrestSingleResponse,
+} from '@supabase/supabase-js';
+import type {
+  TrelloListsOrders,
+  TrelloProjects,
+  TrelloProjectsAddData,
+} from '~/types/trello';
 
 type SignForm = {
   email: string;
@@ -14,7 +22,7 @@ type ErrorHandlerParams = {
 };
 
 export const useSupabase = () => {
-  const { $supabase } = useNuxtApp();
+  const { $api, $supabase } = useNuxtApp();
   const { setError } = useErrorStore();
   const { user } = storeToRefs(useAuthStore());
 
@@ -57,42 +65,95 @@ export const useSupabase = () => {
   }
 
   async function sbGetProfile(id: string) {
-    const res = await $supabase.from('profiles').select().eq('id', id).single();
+    const res: PostgrestSingleResponse<Tables<'profiles'>> = await $api(
+      `/api/supabase/profile?id=${id}`
+    );
     if (res.error) errorHandler(res);
     return res;
   }
 
   async function sbSetProfile(profile: ProfileForm) {
-    const res = await $supabase.from('profiles').insert(profile);
+    const res: PostgrestSingleResponse<null> = await $api(
+      '/api/supabase/profile/add',
+      {
+        method: 'POST',
+        body: profile,
+      }
+    );
+    if (res.error) errorHandler(res);
+    return res;
+  }
+
+  async function sbUpdateProfile(profile: ProfileForm) {
+    const res: PostgrestSingleResponse<null> = await $api(
+      '/api/supabase/profile/update',
+      {
+        method: 'POST',
+        body: profile,
+      }
+    );
     if (res.error) errorHandler(res);
     return res;
   }
 
   async function sbGetTrelloProjects() {
     if (!user.value) return;
-    const res = await $supabase
-      .from('trello_projects')
-      .select(
-        'id, name, created_at, user_id, trello_lists(id, name, order, created_at, trello_tasks(id, name, order, list_id, created_at))'
-      )
-      .eq('user_id', user.value.id);
+    const res: PostgrestSingleResponse<TrelloProjects[]> = await $api(
+      `/api/supabase/trello/projects?id=${user.value.id}`
+    );
     if (res.error) errorHandler(res);
     return res;
   }
 
   async function sbSetTrelloProjects(name: string) {
     if (!user.value) return;
-    const res = await $supabase
-      .from('trello_projects')
-      .insert([{ name, user_id: user.value.id }])
-      .select('*');
+    const res: PostgrestSingleResponse<Tables<'trello_projects'>[]> =
+      await $api('/api/supabase/trello/projects/add', {
+        method: 'POST',
+        body: { name, id: user.value.id },
+      });
+    if (res.error) errorHandler(res);
+    return res;
+  }
+
+  async function sbUpdateTrelloProjects(
+    id: string,
+    listData: { name: string }
+  ) {
+    if (!user.value) return;
+    const res: PostgrestSingleResponse<null> = await $api(
+      '/api/supabase/trello/projects/update',
+      {
+        method: 'POST',
+        body: { listData, id },
+      }
+    );
     if (res.error) errorHandler(res);
     return res;
   }
 
   async function sbAddTrelloLists(list: TrelloProjectsAddData[]) {
     if (!user.value) return;
-    const res = await $supabase.from('trello_lists').insert(list).select('*');
+    const res: PostgrestSingleResponse<Tables<'trello_lists'>[]> = await $api(
+      '/api/supabase/trello/lists/add',
+      {
+        method: 'POST',
+        body: { list },
+      }
+    );
+    if (res.error) errorHandler(res);
+    return res;
+  }
+
+  async function sbUpdateTrelloLists(id: string, listData: { name: string }) {
+    if (!user.value) return;
+    const res: PostgrestSingleResponse<null> = await $api(
+      '/api/supabase/trello/lists/update',
+      {
+        method: 'POST',
+        body: { listData, id },
+      }
+    );
     if (res.error) errorHandler(res);
     return res;
   }
@@ -107,17 +168,39 @@ export const useSupabase = () => {
     order: number;
   }) {
     if (!user.value) return;
-    const res = await $supabase
-      .from('trello_tasks')
-      .insert([{ name, order, list_id: listID }])
-      .select('*');
+    const res: PostgrestSingleResponse<Tables<'trello_tasks'>[]> = await $api(
+      '/api/supabase/trello/tasks/add',
+      {
+        method: 'POST',
+        body: { name, listID, order },
+      }
+    );
+    if (res.error) errorHandler(res);
+    return res;
+  }
+
+  async function sbUpdateTrelloTasks(id: string, taskData: { name: string }) {
+    if (!user.value) return;
+    const res: PostgrestSingleResponse<Tables<'trello_tasks'>[]> = await $api(
+      '/api/supabase/trello/tasks/update',
+      {
+        method: 'POST',
+        body: { taskData, id },
+      }
+    );
     if (res.error) errorHandler(res);
     return res;
   }
 
   async function sbSetTrelloListsOrder(lists: TrelloListsOrders[]) {
     if (!user.value) return;
-    const res = await $supabase.from('trello_lists').upsert(lists);
+    const res: PostgrestSingleResponse<null> = await $api(
+      '/api/supabase/trello/lists/order',
+      {
+        method: 'POST',
+        body: { lists },
+      }
+    );
     if (res.error) errorHandler(res);
     return res;
   }
@@ -126,47 +209,52 @@ export const useSupabase = () => {
     lists: Required<Tables<'trello_tasks'>>[]
   ) {
     if (!user.value) return;
-    const res = await $supabase.from('trello_tasks').upsert(lists);
+    const res: PostgrestSingleResponse<null> = await $api(
+      '/api/supabase/trello/tasks/order',
+      {
+        method: 'POST',
+        body: { lists },
+      }
+    );
     if (res.error) errorHandler(res);
     return res;
   }
 
-  async function sbDeleteByID(table: string, id: string) {
+  async function sbDeleteTrelloTasks(id: string) {
     if (!user.value) return;
-    const res = await $supabase.from(table).delete().eq('id', id);
+    const res: PostgrestSingleResponse<null> = await $api(
+      '/api/supabase/trello/tasks/delete',
+      {
+        method: 'POST',
+        body: { id },
+      }
+    );
     if (res.error) errorHandler(res);
     return res;
   }
 
-  async function sbUpdateTrelloTasks(id: string, taskData: { name: string }) {
+  async function sbDeleteTrelloLists(id: string) {
     if (!user.value) return;
-    const res = await $supabase
-      .from('trello_tasks')
-      .update(taskData)
-      .eq('id', id);
+    const res: PostgrestSingleResponse<null> = await $api(
+      '/api/supabase/trello/lists/delete',
+      {
+        method: 'POST',
+        body: { id },
+      }
+    );
     if (res.error) errorHandler(res);
     return res;
   }
 
-  async function sbUpdateTrelloLists(id: string, listData: { name: string }) {
+  async function sbDeleteTrelloProjects(id: string) {
     if (!user.value) return;
-    const res = await $supabase
-      .from('trello_lists')
-      .update(listData)
-      .eq('id', id);
-    if (res.error) errorHandler(res);
-    return res;
-  }
-
-  async function sbUpdateTrelloProjects(
-    id: string,
-    listData: { name: string }
-  ) {
-    if (!user.value) return;
-    const res = await $supabase
-      .from('trello_projects')
-      .update(listData)
-      .eq('id', id);
+    const res: PostgrestSingleResponse<null> = await $api(
+      '/api/supabase/trello/projects/delete',
+      {
+        method: 'POST',
+        body: { id },
+      }
+    );
     if (res.error) errorHandler(res);
     return res;
   }
@@ -178,15 +266,18 @@ export const useSupabase = () => {
     sbGetSession,
     sbGetProfile,
     sbSetProfile,
+    sbUpdateProfile,
     sbGetTrelloProjects,
     sbSetTrelloProjects,
     sbAddTrelloLists,
     sbAddTrelloTasks,
     sbSetTrelloListsOrder,
     sbSetTrelloTasksOrder,
-    sbDeleteByID,
     sbUpdateTrelloTasks,
     sbUpdateTrelloLists,
     sbUpdateTrelloProjects,
+    sbDeleteTrelloTasks,
+    sbDeleteTrelloLists,
+    sbDeleteTrelloProjects,
   };
 };
