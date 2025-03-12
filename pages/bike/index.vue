@@ -16,6 +16,7 @@ const stations = ref(bikeStations.value);
 const mapLatLng = ref<number[]>(geo || [25.0329694, 121.5654177]);
 const zoom = ref<number>(16);
 const scrollbarRef = ref<ScrollbarInstance | null>(null);
+const mapReady = ref(false);
 
 const city = computed(() =>
   bikeCities.value.find((c) => c.City === cityName.value)
@@ -27,12 +28,16 @@ const { status, execute } = useAsyncData(
   { immediate: false }
 );
 
-onMounted(async () => {
+async function onMapReady() {
+  mapReady.value = true;
+
   // 如store已有參數設置網址參數
   if (cityName.value) {
     setRouteQuery({ city: cityName.value });
     if (keyword.value) searchBikeStation();
-    if (city.value) setMapPosition(city.value.latlng);
+    setTimeout(() => {
+      if (city.value) setMapPosition(city.value.latlng);
+    }, 0);
     return;
   }
 
@@ -43,7 +48,7 @@ onMounted(async () => {
   // 如網址有keyword參數搜尋站點
   keyword.value = (route.query.keyword as string) || '';
   searchBikeStation();
-});
+}
 
 async function fetchBikeStation() {
   keyword.value = '';
@@ -100,21 +105,22 @@ function scrollToTop() {
 </script>
 
 <template>
-  <KeepAlive>
-    <div class="flex flex-1 rounded overflow-hidden">
-      <div class="w-[280px] bg-white p-2 flex flex-col">
-        <BikeStationSelector
-          :loading="status === 'pending'"
-          @change="fetchBikeStation"
-        />
+  <AppLoading v-if="!mapReady && status === 'pending'" class="opacity-70" />
 
-        <BikeStationFilter
-          class="mt-2"
-          :loading="status === 'pending'"
-          @change="searchBikeStation"
-        />
+  <div class="flex flex-1 rounded overflow-hidden">
+    <div class="w-[280px] bg-white p-2 flex flex-col">
+      <BikeStationSelector
+        :loading="status === 'pending'"
+        @change="fetchBikeStation"
+      />
 
-        <!-- <div class="mt-2">
+      <BikeStationFilter
+        class="mt-2"
+        :loading="status === 'pending'"
+        @change="searchBikeStation"
+      />
+
+      <!-- <div class="mt-2">
           <el-button>
             <Icon class="app-icon" name="material-symbols:delete-history" />
           </el-button>
@@ -123,34 +129,34 @@ function scrollToTop() {
           </el-button>
         </div> -->
 
-        <div
-          v-if="stations.length"
-          class="flex-1 basis-0 overflow-hidden flex flex-col"
-        >
-          <el-divider>YouBike站點</el-divider>
-          <el-scrollbar ref="scrollbarRef" class="flex-1">
-            <BikeStationCard
-              v-for="bike in stations"
-              :key="`bike-card-${bike.StationUID}`"
-              :bike="bike"
-              :active="bike.StationUID === activeStation?.StationUID"
-              @click="handleClickCard(bike)"
-            />
-          </el-scrollbar>
-        </div>
-        <el-empty v-else :image-size="30" description="查無站點資料" />
+      <div
+        v-if="stations.length"
+        class="flex-1 basis-0 overflow-hidden flex flex-col"
+      >
+        <el-divider>YouBike站點</el-divider>
+        <el-scrollbar ref="scrollbarRef" class="flex-1">
+          <BikeStationCard
+            v-for="bike in stations"
+            :key="`bike-card-${bike.StationUID}`"
+            :bike="bike"
+            :active="bike.StationUID === activeStation?.StationUID"
+            @click="handleClickCard(bike)"
+          />
+        </el-scrollbar>
       </div>
-
-      <div class="flex flex-1 flex-col">
-        <BikeStationMap
-          :bikeStations="stations"
-          :activeStation="activeStation"
-          :mapLatLng="mapLatLng"
-          :zoom="zoom"
-        />
-      </div>
+      <el-empty v-else :image-size="30" description="查無站點資料" />
     </div>
-  </KeepAlive>
+
+    <div class="flex flex-1 flex-col">
+      <BikeStationMap
+        :bikeStations="stations"
+        :activeStation="activeStation"
+        :mapLatLng="mapLatLng"
+        :zoom="zoom"
+        @ready="onMapReady"
+      />
+    </div>
+  </div>
 </template>
 
 <style scoped></style>

@@ -8,16 +8,29 @@ const props = defineProps<{
   activeStation: BikeStationWithAvailability | null;
 }>();
 
+const emits = defineEmits<{
+  (event: 'ready'): void;
+}>();
+
 const { activeStation } = storeToRefs(useBikeStore());
 const stations = computed(() => props.bikeStations);
 
 function setActiveStation(station: BikeStationWithAvailability) {
   activeStation.value = station;
 }
+
+function onReady() {
+  emits('ready');
+}
 </script>
 
 <template>
-  <LMap :zoom :center="[mapLatLng[0], mapLatLng[1]]" :use-global-leaflet="true">
+  <LMap
+    :zoom
+    :center="[mapLatLng[0], mapLatLng[1]]"
+    :use-global-leaflet="true"
+    @ready="onReady"
+  >
     <MapLayer />
 
     <template v-if="stations.length">
