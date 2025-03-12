@@ -59,7 +59,6 @@ export async function tdxAPI() {
       options.headers.set('Authorization', `Bearer ${token.access_token}`);
     },
     onResponse({ response }) {
-      console.log(response);
       // 在收到回應之後的攔截器
       return response._data; // 返回回應的數據
     },

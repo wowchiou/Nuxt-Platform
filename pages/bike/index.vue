@@ -142,14 +142,12 @@ function scrollToTop() {
       </div>
 
       <div class="flex flex-1 flex-col">
-        <ClientOnly>
-          <BikeStationMap
-            :bikeStations="stations"
-            :activeStation="activeStation"
-            :mapLatLng="mapLatLng"
-            :zoom="zoom"
-          />
-        </ClientOnly>
+        <BikeStationMap
+          :bikeStations="stations"
+          :activeStation="activeStation"
+          :mapLatLng="mapLatLng"
+          :zoom="zoom"
+        />
       </div>
     </div>
   </KeepAlive>

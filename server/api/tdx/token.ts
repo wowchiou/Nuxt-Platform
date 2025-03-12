@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
 
   // 透過 TDX API 取得 token
   try {
-    const tdxToken = getTdxToken();
+    const tdxToken = await getTdxToken();
     if (!tdxToken) {
       createError({ statusCode: 500, message: '取得 TDX Token 失敗' });
     }
