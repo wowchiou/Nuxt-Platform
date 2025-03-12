@@ -7,11 +7,12 @@ declare global {
 }
 
 export default defineEventHandler(async (event) => {
-  // 給其他網站使用的 API，需要設定 CORS
+  const isDev = process.env.NODE_ENV === 'development';
 
+  // 給其他網站使用的 API，需要設定 CORS
   // 設定cors
   setResponseHeaders(event, {
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': isDev ? '*' : 'https://wowchiou.github.io',
     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   });
