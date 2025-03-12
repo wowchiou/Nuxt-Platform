@@ -22,7 +22,7 @@ const city = computed(() =>
   bikeCities.value.find((c) => c.City === cityName.value)
 );
 
-const { status, execute } = useAsyncData(
+const { status, execute, error } = useAsyncData(
   'bike-stations',
   () => bikeStore.fetchBikeStations(cityName.value),
   { immediate: false }
@@ -35,9 +35,16 @@ async function onMapReady() {
   if (cityName.value) {
     setRouteQuery({ city: cityName.value });
     if (keyword.value) searchBikeStation();
-    setTimeout(() => {
-      if (city.value) setMapPosition(city.value.latlng);
-    }, 0);
+    // 如已有選定站點定位到該經緯座標
+    if (activeStation.value) {
+      setMapPosition([
+        activeStation.value.StationPosition.PositionLat,
+        activeStation.value.StationPosition.PositionLon,
+      ]);
+      return;
+    }
+    // 如有查詢城市定位到該經緯座標
+    if (city.value) setMapPosition(city.value.latlng);
     return;
   }
 
@@ -51,8 +58,10 @@ async function onMapReady() {
 }
 
 async function fetchBikeStation() {
-  keyword.value = '';
   await execute();
+  if (error.value) return;
+  keyword.value = '';
+  activeStation.value = null;
   setRouteQuery({ city: cityName.value, keyword: '' });
   stations.value = bikeStations.value;
   // 定位查詢的城市經緯座標
