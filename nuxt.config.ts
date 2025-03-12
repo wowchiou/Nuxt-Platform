@@ -7,6 +7,7 @@ export default defineNuxtConfig({
     // 只在服務端可用
     tdxID: '',
     tdxKey: '',
+    weatherAuth: '',
     public: {
       // public中的變數在客戶端和服務端都可用
       supabaseUrl: '',
