@@ -4,8 +4,10 @@ export default defineNuxtConfig({
   devtools: { enabled: false },
   runtimeConfig: {
     // 只在服務端可用
-    // public中的變數在客戶端和服務端都可用
+    tdxID: '',
+    tdxKey: '',
     public: {
+      // public中的變數在客戶端和服務端都可用
       supabaseUrl: '',
       supabaseKey: '',
       supabaseProjectId: '',
@@ -16,6 +18,7 @@ export default defineNuxtConfig({
     '@nuxtjs/tailwindcss',
     '@nuxt/icon',
     '@pinia/nuxt',
+    '@nuxtjs/leaflet',
   ],
   css: ['~/assets/css/global.css', '~/assets/css/element-plus.css'],
   elementPlus: {
