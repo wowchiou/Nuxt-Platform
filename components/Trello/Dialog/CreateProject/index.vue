@@ -28,7 +28,7 @@ const handleSubmit = submitForm(async () => {
   )?.id;
   if (!id) return;
   trelloStore.setActiveTrello(id);
-  // navigateTo(`/trello/${id}`);
+  navigateTo(`/trello/${id}`);
   handleClose();
 });
 

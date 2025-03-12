@@ -129,15 +129,6 @@ function scrollToTop() {
         @change="searchBikeStation"
       />
 
-      <!-- <div class="mt-2">
-          <el-button>
-            <Icon class="app-icon" name="material-symbols:delete-history" />
-          </el-button>
-          <el-button>
-            <Icon class="app-icon" name="material-symbols:favorite" />
-          </el-button>
-        </div> -->
-
       <div
         v-if="stations.length"
         class="flex-1 basis-0 overflow-hidden flex flex-col"

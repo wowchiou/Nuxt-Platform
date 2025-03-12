@@ -20,7 +20,9 @@ const { status, execute } = useAsyncData(
   navigateTo(`/trello/${activeTrello.value}`);
 })();
 
-const openDialog = () => (dialogVisible.value = true);
+const openDialog = () => {
+  dialogVisible.value = true;
+};
 </script>
 
 <template>
@@ -38,7 +40,7 @@ const openDialog = () => (dialogVisible.value = true);
     <AppLoading class="opacity-70" v-else />
   </div>
 
-  <TrelloDialogCreateLists v-model="dialogVisible" />
+  <TrelloDialogCreateProject v-model="dialogVisible" />
 </template>
 
 <style scoped></style>
