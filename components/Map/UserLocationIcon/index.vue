@@ -7,7 +7,7 @@
         class="bg-yellow-400 h-full rounded-[50%] flex justify-center items-center"
       >
         <Icon
-          class="app-icon text-white opacity-100"
+          class="app-icon !text-white !opacity-100"
           name="material-symbols:location-on"
         />
       </div>
