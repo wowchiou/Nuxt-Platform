@@ -4,12 +4,29 @@ import { VueDraggable, type SortableEvent } from 'vue-draggable-plus';
 
 const trelloStore = useTrelloStore();
 const { trelloLists } = storeToRefs(trelloStore);
-
 const lists = ref(trelloLists.value);
+const newGroupIDX = ref<number | null>(null);
+const oldGroupIDX = ref<number | null>(null);
+
+const { status, execute } = useAsyncData(
+  'set-trello-group',
+  async () => {
+    if (newGroupIDX.value === null || oldGroupIDX.value === null) return;
+    await trelloStore.updateTrelloListsOrder(
+      newGroupIDX.value!,
+      oldGroupIDX.value!
+    );
+  },
+  {
+    immediate: false,
+  }
+);
 
 const onUpdate = async (e: SortableEvent) => {
   const { newIndex, oldIndex } = e;
-  await trelloStore.updateTrelloListsOrder(newIndex, oldIndex);
+  newGroupIDX.value = newIndex as number;
+  oldGroupIDX.value = oldIndex as number;
+  await execute();
 };
 
 watch(trelloLists, (newVal) => {
@@ -27,6 +44,7 @@ watch(trelloLists, (newVal) => {
     ghostClass="group-ghost"
     :animation="150"
     handle=".handle"
+    :disabled="status === 'pending'"
     @update="onUpdate"
   >
     <TrelloCard
@@ -35,7 +53,7 @@ watch(trelloLists, (newVal) => {
       :data-id="item.id"
       :key="`trello-group-${item.id}`"
     >
-      <div class="task-header">
+      <div class="task-header" :class="{ 'cursor-move': status !== 'pending' }">
         <div class="task-name handle">
           <p class="ml-2 truncate flex-1 text-[14px] py-1">
             {{ item.name }}
@@ -59,7 +77,7 @@ watch(trelloLists, (newVal) => {
 }
 
 .task-header {
-  @apply flex justify-between items-center overflow-hidden cursor-move;
+  @apply flex justify-between items-center overflow-hidden;
 }
 
 .task-name {
