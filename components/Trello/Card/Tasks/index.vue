@@ -12,14 +12,14 @@ const { trelloLists } = storeToRefs(trelloStore);
 
 const newTaskIDX = ref<number | null>(null);
 const oldTaskIDX = ref<number | null>(null);
+const addInfo = ref<DragTaskAddData | null>(null);
 
-const tasks = computed(() => {
-  return trelloLists.value.find((list) => list.id === props.listID)
-    ?.trello_tasks;
-});
+const tasks = computed(
+  () => trelloLists.value.find((list) => list.id === props.listID)?.trello_tasks
+);
 
-const { status, execute } = useAsyncData(
-  'set-trello-tasks',
+const { status: updateOrderStatus, execute: updateOrder } = useAsyncData(
+  'set-trello-tasks-order',
   async () => {
     if (newTaskIDX.value === null || oldTaskIDX.value === null) return;
     await trelloStore.updateTrelloTasksOrder({
@@ -28,26 +28,35 @@ const { status, execute } = useAsyncData(
       oldIndex: oldTaskIDX.value,
     });
   },
-  {
-    immediate: false,
-  }
+  { immediate: false }
+);
+
+const { status: overCrossStatus, execute: overCross } = useAsyncData(
+  'set-trello-tasks-over-cross',
+  () => trelloStore.updateTrelloTasksOverCross(addInfo.value!),
+  { immediate: false }
+);
+
+const isFetching = computed(
+  () =>
+    updateOrderStatus.value === 'pending' || overCrossStatus.value === 'pending'
 );
 
 const onUpdate = async (e: SortableEvent) => {
   const { newIndex, oldIndex } = e;
   newTaskIDX.value = newIndex as number;
   oldTaskIDX.value = oldIndex as number;
-  await execute();
+  await updateOrder();
 };
 
 const onAdd = async (e: SortableEvent) => {
-  const addInfo = {
+  addInfo.value = {
     toID: e.to.parentElement!.dataset.id,
     toIndex: e.newIndex,
     fromID: e.from.parentElement!.dataset.id,
     fromIndex: e.oldIndex,
-  };
-  await trelloStore.updateTrelloTasksOverCross(addInfo as DragTaskAddData);
+  } as DragTaskAddData;
+  await overCross();
 };
 </script>
 
@@ -61,14 +70,14 @@ const onAdd = async (e: SortableEvent) => {
     :animation="150"
     ghostClass="task-ghost"
     handle=".handle"
-    :disabled="status === 'pending'"
+    :disabled="isFetching"
     @add="onAdd"
     @update="onUpdate"
   >
     <div class="task-card" v-for="task in tasks" :key="`task-${task.id}`">
       <p
         class="break-all flex-1 handle"
-        :class="{ 'cursor-move': status !== 'pending' }"
+        :class="{ 'cursor-move': !isFetching }"
       >
         {{ task.name }}
       </p>
