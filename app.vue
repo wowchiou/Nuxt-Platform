@@ -42,10 +42,9 @@ useSeoMeta({
 </script>
 
 <template>
+  <NuxtRouteAnnouncer />
   <AppLoading v-if="authLoading" />
-
   <NuxtLayout v-else>
-    <NuxtRouteAnnouncer />
     <AppError v-if="errorStore.activeError" />
     <NuxtPage v-else />
   </NuxtLayout>

@@ -1,19 +1,18 @@
 <script setup lang="ts">
 import type { BikeStationWithAvailability } from '~/types/tdx';
 import type { ScrollbarInstance } from 'element-plus';
-
-// 獲取使用者位置
-const geo = await getUserPosition();
-if (!geo) rejectGeo();
-
 const router = useRouter();
 const route = useRoute();
+const authStore = useAuthStore();
 const bikeStore = useBikeStore();
+
+const { userPosition, defaultPosition } = storeToRefs(authStore);
 const { cityName, keyword, bikeCities, bikeStations, activeStation } =
   storeToRefs(bikeStore);
 
 const stations = ref(bikeStations.value);
-const mapLatLng = ref<number[]>(geo || [25.0329694, 121.5654177]);
+// 預設地圖初始位置為使用者位置
+const mapLatLng = ref<number[]>(userPosition.value || defaultPosition.value);
 const zoom = ref<number>(16);
 const scrollbarRef = ref<ScrollbarInstance | null>(null);
 const mapReady = ref(false);
@@ -29,7 +28,13 @@ const { status, execute, error } = useAsyncData(
 );
 
 async function onMapReady() {
-  mapReady.value = true;
+  // 獲取使用者位置
+  const geo = await getUserPosition();
+  if (!geo) {
+    rejectGeo();
+  } else {
+    authStore.setUserPosition(geo);
+  }
 
   // 如store已有參數設置網址參數
   if (cityName.value) {
@@ -50,11 +55,14 @@ async function onMapReady() {
 
   // 如網址有city參數取得該城市的YouBike站點
   cityName.value = (route.query.city as string) || '';
-  if (cityName.value) await fetchBikeStation();
-
-  // 如網址有keyword參數搜尋站點
-  keyword.value = (route.query.keyword as string) || '';
-  searchBikeStation();
+  if (cityName.value) {
+    await fetchBikeStation();
+    // 如網址有keyword參數搜尋站點
+    keyword.value = (route.query.keyword as string) || '';
+    if (keyword.value) searchBikeStation();
+  } else if (userPosition.value) {
+    setMapPosition(userPosition.value);
+  }
 }
 
 async function fetchBikeStation() {
@@ -114,8 +122,6 @@ function scrollToTop() {
 </script>
 
 <template>
-  <AppLoading v-if="!mapReady && status === 'pending'" class="opacity-70" />
-
   <div class="flex flex-1 rounded overflow-hidden">
     <div class="w-[280px] bg-white p-2 flex flex-col">
       <BikeStationSelector
@@ -153,6 +159,7 @@ function scrollToTop() {
         :activeStation="activeStation"
         :mapLatLng="mapLatLng"
         :zoom="zoom"
+        :loading="status === 'pending'"
         @ready="onMapReady"
       />
     </div>
