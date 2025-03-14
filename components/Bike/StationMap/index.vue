@@ -13,8 +13,10 @@ const emits = defineEmits<{
   (event: 'ready'): void;
 }>();
 
-const { userPosition } = storeToRefs(useAuthStore());
+const authStore = useAuthStore();
+const { userPosition } = storeToRefs(authStore);
 const { activeStation } = storeToRefs(useBikeStore());
+const isGeoReady = ref(false);
 
 const stations = computed(() => props.bikeStations);
 
@@ -22,14 +24,30 @@ function setActiveStation(station: BikeStationWithAvailability) {
   activeStation.value = station;
 }
 
-function onReady() {
+async function onReady() {
+  // 獲取使用者位置
+  const geo = await getUserPosition();
+  isGeoReady.value = true;
+  if (!geo) {
+    rejectGeo();
+  } else {
+    authStore.setUserPosition(geo);
+  }
   emits('ready');
+}
+
+function rejectGeo() {
+  ElNotification({
+    title: '提醒',
+    message: '已關閉定位功能，如要開啟請至瀏覽器設定開啟',
+    type: 'warning',
+  });
 }
 </script>
 
 <template>
   <div class="relative w-full h-full bg-gray-300">
-    <AppLoading v-if="loading" />
+    <AppLoading v-if="loading || !isGeoReady" />
 
     <LMap
       class="absolute w-full h-full top-0 left-0"

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 withDefaults(
   defineProps<{
-    showLoader: boolean;
+    showLoader?: boolean;
   }>(),
   {
     showLoader: true,

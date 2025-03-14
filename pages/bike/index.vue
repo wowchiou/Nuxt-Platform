@@ -28,14 +28,7 @@ const { status, execute, error } = useAsyncData(
 );
 
 async function onMapReady() {
-  // 獲取使用者位置
-  const geo = await getUserPosition();
-  if (!geo) {
-    rejectGeo();
-  } else {
-    authStore.setUserPosition(geo);
-    setMapPosition(geo);
-  }
+  if (userPosition.value) setMapPosition(userPosition.value);
 
   // 如store已有參數設置網址參數
   const isStoreHasData = checkIsStoreHasData();
@@ -48,8 +41,6 @@ async function onMapReady() {
     // 如網址有keyword參數搜尋站點
     keyword.value = (route.query.keyword as string) || '';
     if (keyword.value) searchBikeStation();
-  } else if (userPosition.value) {
-    setMapPosition(userPosition.value);
   }
 }
 
@@ -109,14 +100,6 @@ function handleClickCard(bike: BikeStationWithAvailability) {
     [StationPosition.PositionLat, StationPosition.PositionLon],
     18
   );
-}
-
-function rejectGeo() {
-  ElNotification({
-    title: '提醒',
-    message: '已關閉定位功能，如要開啟請至瀏覽器設定開啟',
-    type: 'warning',
-  });
 }
 
 function setRouteQuery(query: Record<string, string>) {
