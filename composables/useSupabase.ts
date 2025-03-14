@@ -72,7 +72,7 @@ export const useSupabase = () => {
     return res;
   }
 
-  async function sbSetProfile(profile: ProfileForm) {
+  async function sbAddProfile(profile: ProfileForm) {
     const res: PostgrestSingleResponse<null> = await $api(
       '/api/supabase/profile/add',
       {
@@ -265,7 +265,7 @@ export const useSupabase = () => {
     sbSignout,
     sbGetSession,
     sbGetProfile,
-    sbSetProfile,
+    sbAddProfile,
     sbUpdateProfile,
     sbGetTrelloProjects,
     sbSetTrelloProjects,

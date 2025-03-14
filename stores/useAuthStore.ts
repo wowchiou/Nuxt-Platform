@@ -13,7 +13,8 @@ export const useAuthStore = defineStore('auth-store', () => {
   const {
     sbGetProfile,
     sbGetSession,
-    sbSetProfile,
+    sbAddProfile,
+    sbUpdateProfile,
     sbSignin,
     sbSignout,
     sbSignup,
@@ -78,10 +79,22 @@ export const useAuthStore = defineStore('auth-store', () => {
     }
   }
 
-  // 設定profile
-  async function setProfile(profile: ProfileForm) {
-    const { error } = await sbSetProfile(profile);
+  // 新增profile
+  async function setProfile(form: ProfileForm) {
+    const { error } = await sbAddProfile(form);
     if (error) return false;
+    return true;
+  }
+
+  // 更新profile
+  async function updateProfile(form: ProfileForm) {
+    const { data, error } = await sbUpdateProfile({
+      ...form,
+      id: user.value!.id,
+      full_name: form.username,
+    });
+    if (error) return false;
+    if (data) profile.value = data[0];
     return true;
   }
 
@@ -114,5 +127,7 @@ export const useAuthStore = defineStore('auth-store', () => {
     signout,
     getSession,
     setAuth,
+    setProfile,
+    updateProfile,
   };
 });

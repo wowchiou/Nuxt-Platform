@@ -9,7 +9,9 @@ export interface Signup extends Signin {
 }
 
 export interface ProfileForm {
-  id: string;
+  id?: string;
   username: string;
-  full_name: string;
+  full_name?: string;
+  avatar_url?: string;
+  bio?: string;
 }
