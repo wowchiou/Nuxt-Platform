@@ -15,7 +15,6 @@ const stations = ref(bikeStations.value);
 const mapLatLng = ref<number[]>(userPosition.value || defaultPosition.value);
 const zoom = ref<number>(16);
 const scrollbarRef = ref<ScrollbarInstance | null>(null);
-const mapReady = ref(false);
 
 const city = computed(() =>
   bikeCities.value.find((c) => c.City === cityName.value)

@@ -36,9 +36,6 @@ defineProps<{
 </template>
 
 <style scoped>
-.active {
-  @apply !border-blue-500;
-}
 .active .app-icon {
   @apply !text-white;
 }
