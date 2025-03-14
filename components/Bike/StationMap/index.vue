@@ -28,7 +28,7 @@ function onReady() {
 </script>
 
 <template>
-  <div class="relative w-full h-full">
+  <div class="relative w-full h-full bg-gray-300">
     <div v-if="loading" class="loading">
       <Icon class="text-4xl" name="line-md:loading-twotone-loop" />
     </div>

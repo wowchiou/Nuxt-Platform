@@ -34,24 +34,12 @@ async function onMapReady() {
     rejectGeo();
   } else {
     authStore.setUserPosition(geo);
+    setMapPosition(geo);
   }
 
   // 如store已有參數設置網址參數
-  if (cityName.value) {
-    setRouteQuery({ city: cityName.value });
-    if (keyword.value) searchBikeStation();
-    // 如已有選定站點定位到該經緯座標
-    if (activeStation.value) {
-      setMapPosition([
-        activeStation.value.StationPosition.PositionLat,
-        activeStation.value.StationPosition.PositionLon,
-      ]);
-      return;
-    }
-    // 如有查詢城市定位到該經緯座標
-    if (city.value) setMapPosition(city.value.latlng);
-    return;
-  }
+  const isStoreHasData = checkIsStoreHasData();
+  if (isStoreHasData) return;
 
   // 如網址有city參數取得該城市的YouBike站點
   cityName.value = (route.query.city as string) || '';
@@ -63,6 +51,25 @@ async function onMapReady() {
   } else if (userPosition.value) {
     setMapPosition(userPosition.value);
   }
+}
+
+function checkIsStoreHasData() {
+  if (cityName.value) {
+    setRouteQuery({ city: cityName.value });
+    if (keyword.value) searchBikeStation();
+    // 如已有選定站點定位到該經緯座標
+    if (activeStation.value) {
+      setMapPosition([
+        activeStation.value.StationPosition.PositionLat,
+        activeStation.value.StationPosition.PositionLon,
+      ]);
+      return true;
+    }
+    // 如有查詢城市定位到該經緯座標
+    if (city.value) setMapPosition(city.value.latlng);
+    return true;
+  }
+  return false;
 }
 
 async function fetchBikeStation() {
