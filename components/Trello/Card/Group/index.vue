@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { TrelloCardTasks } from '#components';
 import { VueDraggable, type SortableEvent } from 'vue-draggable-plus';
+import type { SetLoadingFunc } from '~/types/trello';
+
+const setTrelloLoading = inject<SetLoadingFunc>('$trelloLoading', () => {});
 
 const trelloStore = useTrelloStore();
 const { trelloLists } = storeToRefs(trelloStore);
@@ -31,6 +33,10 @@ const onUpdate = async (e: SortableEvent) => {
 
 watch(trelloLists, (newVal) => {
   lists.value = newVal;
+});
+
+watch(status, (val) => {
+  setTrelloLoading(val === 'pending');
 });
 </script>
 

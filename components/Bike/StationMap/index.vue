@@ -29,9 +29,7 @@ function onReady() {
 
 <template>
   <div class="relative w-full h-full bg-gray-300">
-    <div v-if="loading" class="loading">
-      <Icon class="text-4xl" name="line-md:loading-twotone-loop" />
-    </div>
+    <AppLoading v-if="loading" />
 
     <LMap
       class="absolute w-full h-full top-0 left-0"

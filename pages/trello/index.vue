@@ -26,18 +26,15 @@ const openDialog = () => {
 </script>
 
 <template>
-  <div class="pt-10">
-    <div
-      v-if="!activeTrello && status !== 'pending'"
-      class="max-w-[500px] m-auto text-center"
-    >
+  <div class="pt-10 relative flex-1">
+    <AppLoading v-if="activeTrello || status === 'pending'" />
+
+    <div v-else class="max-w-[500px] m-auto text-center">
       <h2 class="text-xl fon-bold">建立第一個任務專案吧！</h2>
       <el-button class="mt-4" type="primary" @click="openDialog">
         創建任務專案
       </el-button>
     </div>
-
-    <AppLoading class="opacity-70" v-else />
   </div>
 
   <TrelloDialogCreateProject v-model="dialogVisible" />

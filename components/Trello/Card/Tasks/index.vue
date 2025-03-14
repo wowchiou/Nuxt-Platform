@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { VueDraggable } from 'vue-draggable-plus';
 import type { SortableEvent } from 'vue-draggable-plus';
-import type { DragTaskAddData } from '~/types/trello';
+import type { DragTaskAddData, SetLoadingFunc } from '~/types/trello';
 
 const props = defineProps<{
   listID: string;
 }>();
+
+const setTrelloLoading = inject<SetLoadingFunc>('$trelloLoading', () => {});
 
 const trelloStore = useTrelloStore();
 const { trelloLists } = storeToRefs(trelloStore);
@@ -58,6 +60,10 @@ const onAdd = async (e: SortableEvent) => {
   } as DragTaskAddData;
   await overCross();
 };
+
+watch(isFetching, (val) => {
+  setTrelloLoading(val);
+});
 </script>
 
 <template>

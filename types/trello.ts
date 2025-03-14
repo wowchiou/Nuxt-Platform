@@ -30,3 +30,5 @@ export interface TrelloProjectsAddData {
   order: number;
   project_id: string;
 }
+
+export type SetLoadingFunc = (val: boolean) => void;
