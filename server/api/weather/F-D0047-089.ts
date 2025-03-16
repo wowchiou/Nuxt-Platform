@@ -1,9 +1,6 @@
 import { weatherAPI } from '~/server/utils/weather';
-import cors from '~/server/api/tdx/public/cors';
 
 export default defineEventHandler(async (event) => {
-  cors(event);
-
   const config = useRuntimeConfig();
   const { weatherAuth } = config;
 
