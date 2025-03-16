@@ -56,7 +56,6 @@ export const useWeatherStore = defineStore('weather-store', () => {
     if (weatherHours.value) return;
     try {
       const res = await getHoursWeather();
-      console.log(res);
       weatherHours.value = res.records.Locations[0].Location;
     } catch (error) {
       errorHandler(error as WeatherError);
