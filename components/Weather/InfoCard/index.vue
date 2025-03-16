@@ -13,8 +13,9 @@ const { execute } = useAsyncData(
 
 const weatherPicture = computed(() => {
   const w = getHoursElement.value(ElementName['天氣現象']);
-  const time = moment(w[0].StartTime).format('HH');
-  const dayOrNight = ['06', '18'].includes(time) ? 'day' : 'night';
+  const time = Number(moment(w[0].StartTime).hours());
+  let dayOrNight: 'day' | 'night' = 'day';
+  if (time < 5 || time >= 18) dayOrNight = 'night';
   const weatherCode = w[0].ElementValue[0].WeatherCode;
   return weatherStore.getWeatherPic(dayOrNight, weatherCode);
 });

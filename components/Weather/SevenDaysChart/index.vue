@@ -64,7 +64,6 @@ function initChart() {
     height: 400,
     devicePixelRatio: window.devicePixelRatio || 2,
   });
-  console.log(getOption());
   chart.value.setOption(getOption());
 }
 
