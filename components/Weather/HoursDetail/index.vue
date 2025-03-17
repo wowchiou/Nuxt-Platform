@@ -12,7 +12,7 @@ type WeatherData = {
 };
 
 const weatherStore = useWeatherStore();
-const { getHoursElement, cityName } = storeToRefs(weatherStore);
+const { getHoursElement, cityName, weatherHours } = storeToRefs(weatherStore);
 const scrollbarRef = ref<ScrollbarInstance | null>(null);
 
 const { execute } = useAsyncData(
@@ -78,7 +78,11 @@ function scrollToLeft() {
 </script>
 
 <template>
-  <el-scrollbar ref="scrollbarRef" class="bg-slate-200 rounded">
+  <el-scrollbar
+    v-if="weatherHours"
+    ref="scrollbarRef"
+    class="bg-slate-200 rounded"
+  >
     <div
       class="flex items-start gap-x-7 whitespace-nowrap text-center px-5 pt-8 pb-3"
     >

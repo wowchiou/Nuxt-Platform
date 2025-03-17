@@ -3,7 +3,7 @@ import moment from 'moment';
 import { ElementName } from '~/types/weather';
 
 const weatherStore = useWeatherStore();
-const { getHoursElement } = storeToRefs(weatherStore);
+const { getHoursElement, weatherHours } = storeToRefs(weatherStore);
 
 const { execute } = useAsyncData(
   'get-hours-weather',
@@ -26,7 +26,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="text-gray-500 flex items-center gap-x-5">
+  <div v-if="weatherHours" class="text-gray-500 flex items-center gap-x-5">
     <div class="flex justify-center">
       <img class="w-[35px]" :src="weatherPicture" alt="" />
     </div>
