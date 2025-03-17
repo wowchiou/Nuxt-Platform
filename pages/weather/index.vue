@@ -67,7 +67,7 @@ function setCityNameOfRoute(name: string) {
           <WeatherSevenDaysChart class="w-full" />
         </div>
 
-        <div>
+        <div class="mt-5">
           <div class="title">未來降雨曲線</div>
           <el-divider class="!my-2" />
           <WeatherSevenDaysRainChart class="w-full" />
