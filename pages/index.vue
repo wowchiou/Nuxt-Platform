@@ -8,6 +8,7 @@ const userProfile = computed(() => profile.value);
 const form = ref({
   username: profile.value?.username ?? '',
   bio: profile.value?.bio ?? '',
+  city: profile.value?.city ?? '',
 });
 
 const rules = ref({
@@ -56,8 +57,8 @@ watch(profile, setForm, { immediate: true });
           <div class="ml-1"><span v-if="isEditing">編輯</span>個人資料</div>
         </el-button>
 
-        <el-descriptions class="mt-5" direction="vertical" :column="2" border>
-          <el-descriptions-item label="用戶名" label-width="50%">
+        <el-descriptions class="mt-5" direction="vertical" :column="1" border>
+          <el-descriptions-item label="用戶名">
             <div v-if="!isEditing">{{ userProfile?.username }}</div>
 
             <el-form-item v-else prop="username">
@@ -70,6 +71,27 @@ watch(profile, setForm, { immediate: true });
 
             <el-form-item v-else>
               <el-input v-model="user!.email" disabled />
+            </el-form-item>
+          </el-descriptions-item>
+
+          <el-descriptions-item label="居住城市">
+            <div v-if="!isEditing">{{ userProfile?.city || '暫無資料' }}</div>
+
+            <el-form-item v-else>
+              <el-select
+                class="flex-1"
+                v-model="form.city"
+                size="large"
+                placeholder="請選擇城市"
+              >
+                <el-option label="請選擇城市" value="" disabled />
+                <el-option
+                  v-for="city in CITY_LIST"
+                  :key="city.CityCode"
+                  :label="city.CityName"
+                  :value="city.CityName"
+                />
+              </el-select>
             </el-form-item>
           </el-descriptions-item>
 

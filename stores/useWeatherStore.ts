@@ -6,7 +6,10 @@ import type {
 } from '~/types/weather';
 
 export const useWeatherStore = defineStore('weather-store', () => {
-  const cityName = ref<string>('臺北市');
+  const authStore = useAuthStore();
+  const { profile } = storeToRefs(authStore);
+
+  const cityName = ref<string>(profile.value?.city ?? '臺北市');
   const { getHoursWeather, get7DaysWeather } = useWeather();
   const { setError } = useErrorStore();
 
