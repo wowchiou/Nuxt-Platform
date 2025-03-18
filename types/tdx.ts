@@ -45,6 +45,7 @@ export interface BikeStations {
   ServiceType: BikeServiceType;
   SrcUpdateTime: Date;
   UpdateTime: Date;
+  isFavor?: boolean;
 }
 
 export interface Station {

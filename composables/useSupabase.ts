@@ -259,6 +259,41 @@ export const useSupabase = () => {
     return res;
   }
 
+  async function sbGetBikeFavorite() {
+    if (!user.value) return;
+    const res: PostgrestSingleResponse<Tables<'bike_favorite'>[]> = await $api(
+      `/api/supabase/bike/favorite?id=${user.value.id}`
+    );
+    if (res.error) errorHandler(res);
+    return res;
+  }
+
+  async function sbAddBikeFavorite(stationID: string) {
+    if (!user.value) return;
+    const res: PostgrestSingleResponse<Tables<'bike_favorite'>[]> = await $api(
+      '/api/supabase/bike/favorite/add',
+      {
+        method: 'POST',
+        body: { stationID, userID: user.value.id },
+      }
+    );
+    if (res.error) errorHandler(res);
+    return res;
+  }
+
+  async function sbDeleteBikeFavorite(stationID: string) {
+    if (!user.value) return;
+    const res: PostgrestSingleResponse<null> = await $api(
+      '/api/supabase/bike/favorite/delete',
+      {
+        method: 'POST',
+        body: { userID: user.value.id, stationID },
+      }
+    );
+    if (res.error) errorHandler(res);
+    return res;
+  }
+
   return {
     sbSignup,
     sbSignin,
@@ -279,5 +314,8 @@ export const useSupabase = () => {
     sbDeleteTrelloTasks,
     sbDeleteTrelloLists,
     sbDeleteTrelloProjects,
+    sbGetBikeFavorite,
+    sbAddBikeFavorite,
+    sbDeleteBikeFavorite,
   };
 };
