@@ -11,7 +11,7 @@ withDefaults(
 
 <template>
   <div
-    class="absolute left-0 top-0 w-full h-full flex items-center justify-center bg-slate-200 bg-opacity-70 !z-[99]"
+    class="absolute left-0 top-0 w-full h-full flex items-center justify-center bg-slate-200 bg-opacity-70 !z-[999]"
   >
     <Icon
       v-if="showLoader"
