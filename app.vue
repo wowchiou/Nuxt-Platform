@@ -2,10 +2,15 @@
 const route = useRoute();
 const errorStore = useErrorStore();
 const authStore = useAuthStore();
-const authLoading = ref(true);
 
 // 監聽登入狀態
 authStore.trackAuthState();
+
+const { status, execute, data } = useAsyncData(
+  'auth-check',
+  authStore.getSession,
+  { immediate: false }
+);
 
 // 如果頁面執行有錯誤，則將錯誤訊息存入errorStore
 onErrorCaptured((error) => {
@@ -15,12 +20,11 @@ onErrorCaptured((error) => {
 onBeforeMount(async () => {
   // 載入頁面檢查是否有登入
   await checkAuth();
-  authLoading.value = false;
 });
 
 async function checkAuth() {
-  const sessionData = await authStore.getSession();
-  const isLogin = sessionData && sessionData.session.user;
+  await execute();
+  const isLogin = data.value && data.value.session.user;
   const blockList = ['/signin', '/signup'];
   const isBlockWhenLoggedIn = blockList.includes(route.path);
 
@@ -43,7 +47,8 @@ useSeoMeta({
 
 <template>
   <NuxtRouteAnnouncer />
-  <AppLoading class="!fixed" v-if="authLoading" />
+  <AppLoading class="!fixed" v-if="status === 'pending'" />
+
   <NuxtLayout v-else>
     <AppError v-if="errorStore.activeError" />
     <NuxtPage v-else />
