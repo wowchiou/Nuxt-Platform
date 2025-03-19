@@ -1,5 +1,9 @@
 <script setup lang="ts">
+import L from 'leaflet';
 import { type BikeStationWithAvailability } from '~/types/tdx';
+
+// 不載入預設的leaflet icon
+delete (L.Icon.Default.prototype as any)._getIconUrl;
 
 const props = defineProps<{
   bikeStations: BikeStationWithAvailability[];
@@ -17,21 +21,27 @@ const authStore = useAuthStore();
 const { userPosition } = storeToRefs(authStore);
 const { activeStation } = storeToRefs(useBikeStore());
 const isGeoReady = ref(false);
+const showMap = ref(false);
+const geo = ref();
 
 const stations = computed(() => props.bikeStations);
+
+onMounted(async () => {
+  // 獲取使用者位置
+  geo.value = await getUserPosition();
+  showMap.value = true;
+});
 
 function setActiveStation(station: BikeStationWithAvailability) {
   activeStation.value = station;
 }
 
 async function onReady() {
-  // 獲取使用者位置
-  const geo = await getUserPosition();
   isGeoReady.value = true;
-  if (!geo) {
+  if (!geo.value) {
     rejectGeo();
   } else {
-    authStore.setUserPosition(geo);
+    authStore.setUserPosition(geo.value);
   }
   emits('ready');
 }
@@ -50,6 +60,7 @@ function rejectGeo() {
     <AppLoading v-if="loading || !isGeoReady" />
 
     <LMap
+      v-if="showMap"
       class="absolute w-full h-full top-0 left-0"
       :zoom
       :center="[mapLatLng[0], mapLatLng[1]]"
