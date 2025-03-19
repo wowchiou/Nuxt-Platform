@@ -39,7 +39,7 @@ function splitStationName(name: string) {
 </script>
 
 <template>
-  <LPopup :options="{ maxWidth: 300 }">
+  <LPopup>
     <div class="leading-normal">
       <div class="text-[14px] flex items-center relative">
         <AppLoading

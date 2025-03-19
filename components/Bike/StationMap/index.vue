@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import L from 'leaflet';
+import { LMarker } from '#components';
 import { type BikeStationWithAvailability } from '~/types/tdx';
 
 // 不載入預設的leaflet icon
@@ -23,8 +24,23 @@ const { activeStation } = storeToRefs(useBikeStore());
 const isGeoReady = ref(false);
 const showMap = ref(false);
 const geo = ref();
+const markers = ref<InstanceType<typeof LMarker>[]>([]);
 
 const stations = computed(() => props.bikeStations);
+
+watch(activeStation, (station) => {
+  if (station) {
+    const m = markers.value.find(({ latLng }) => {
+      const coords = latLng as [number, number];
+      return (
+        coords[0] === station.StationPosition.PositionLat &&
+        coords[1] === station.StationPosition.PositionLon
+      );
+    });
+    if (!m || !m.leafletObject) return;
+    m.leafletObject.openPopup();
+  }
+});
 
 onMounted(async () => {
   // 獲取使用者位置
@@ -81,6 +97,7 @@ function rejectGeo() {
         <LMarker
           v-for="bike in stations"
           :key="`bike-marker-${bike.StationUID}`"
+          ref="markers"
           :lat-lng="[
             bike.StationPosition.PositionLat,
             bike.StationPosition.PositionLon,
