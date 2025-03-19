@@ -43,7 +43,7 @@ function setCityNameOfRoute(name: string) {
     <AppLoading v-if="isFetching" />
 
     <div v-else class="relative w-full text-[14px] bg-white p-5">
-      <div class="w-full sticky top-[56px] bg-white z-10 pb-5">
+      <div class="w-full sticky top-[56px] bg-white z-10 py-5 -mt-5">
         <div class="flex items-center">
           <div class="title font-bold">{{ cityName }}</div>
           <WeatherInfoCard class="ml-5" />
