@@ -75,7 +75,6 @@ function rejectGeo() {
 <template>
   <div class="relative w-full h-full bg-gray-300">
     <AppLoading v-if="loading || !isGeoReady" />
-
     <LMap
       v-if="showMap"
       class="absolute w-full h-full top-0 left-0"

@@ -40,10 +40,11 @@ watch(profile, setForm, { immediate: true });
 </script>
 
 <template>
-  <div class="flex justify-center pt-10 relative">
+  <div class="flex justify-center pt-10 relative flex-1">
     <AppLoading v-if="!user || !profile" />
 
     <el-form
+      v-else
       ref="formRef"
       :model="form"
       :rules

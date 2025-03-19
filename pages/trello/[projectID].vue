@@ -8,27 +8,27 @@ const trelloLoading = ref(false);
 const { status, execute } = useAsyncData(
   'trello-projects',
   trelloStore.setTrello,
-  {
-    immediate: false,
-  }
+  { immediate: false }
 );
 
-if (!trelloProjects.value.length) {
-  await execute();
-
-  const projectID = useRoute().params.projectID as string;
-  const isExistsProject = trelloProjects.value.find(
-    (itm) => itm.id === projectID
-  );
-
-  if (isExistsProject) {
-    trelloStore.setActiveTrello(projectID);
+onBeforeMount(async () => {
+  if (!trelloProjects.value.length) {
     await execute();
-  } else {
-    navigateTo('/trello');
-    ElNotification.warning({ message: '您尋找的頁面不存在！' });
+
+    const projectID = useRoute().params.projectID as string;
+    const isExistsProject = trelloProjects.value.find(
+      (itm) => itm.id === projectID
+    );
+
+    if (isExistsProject) {
+      trelloStore.setActiveTrello(projectID);
+      await execute();
+    } else {
+      navigateTo('/trello');
+      ElNotification.warning({ message: '您尋找的頁面不存在！' });
+    }
   }
-}
+});
 
 const setTrelloLoading: SetLoadingFunc = (val: boolean) => {
   trelloLoading.value = val;
@@ -38,12 +38,13 @@ provide('$trelloLoading', setTrelloLoading);
 </script>
 
 <template>
-  <div class="flex-1">
+  <div class="flex-1 relative">
+    <AppLoading v-if="status === 'pending'" />
     <TrelloFilter />
 
     <div class="relative">
       <AppLoading
-        v-if="status === 'pending' || trelloLoading"
+        v-if="trelloLoading"
         :showLoader="false"
         class="!bg-opacity-30"
       />

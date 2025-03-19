@@ -11,18 +11,18 @@ const { status, execute } = useAsyncData(
   }
 );
 
-(async () => {
+const openDialog = () => {
+  dialogVisible.value = true;
+};
+
+onMounted(async () => {
   if (!activeTrello.value) {
     await execute();
     if (!trelloProjects.value.length) return;
     activeTrello.value = trelloProjects.value[0].id!;
   }
   navigateTo(`/trello/${activeTrello.value}`);
-})();
-
-const openDialog = () => {
-  dialogVisible.value = true;
-};
+});
 </script>
 
 <template>
