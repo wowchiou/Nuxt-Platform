@@ -21,6 +21,7 @@ export default defineNuxtConfig({
     '@nuxt/icon',
     '@pinia/nuxt',
     '@nuxtjs/leaflet',
+    '@vueuse/nuxt',
   ],
   css: ['~/assets/css/global.css', '~/assets/css/element-plus.css'],
   elementPlus: {

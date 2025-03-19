@@ -34,6 +34,8 @@
     "@faker-js/faker": "^9.5.0",
     "@iconify-json/material-symbols": "^1.2.14",
     "@nuxtjs/tailwindcss": "^6.13.1",
+    "@vueuse/core": "^13.0.0",
+    "@vueuse/nuxt": "^13.0.0",
     "element-plus": "^2.9.5",
     "sass": "^1.85.0",
     "supabase": "^2.12.1"

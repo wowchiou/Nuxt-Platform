@@ -26,6 +26,10 @@ const stations = computed(() => {
   return ss;
 });
 
+const isFetch = computed(
+  () => status.value === 'pending' || favorStatus.value === 'pending'
+);
+
 // 預設地圖初始位置為使用者位置
 const mapLatLng = ref<number[]>(userPosition.value || defaultPosition.value);
 const zoom = ref<number>(16);
@@ -41,7 +45,7 @@ const { status, execute, error } = useAsyncData(
   { immediate: false }
 );
 
-const { execute: getFavor } = useAsyncData(
+const { status: favorStatus, execute: getFavor } = useAsyncData(
   'bike-favorite',
   bikeStore.fetchBikeFavorite,
   { immediate: false }
@@ -179,7 +183,7 @@ function handleShowFavorite() {
         :activeStation="activeStation"
         :mapLatLng="mapLatLng"
         :zoom="zoom"
-        :loading="status === 'pending'"
+        :loading="isFetch"
         @ready="onMapReady"
       />
     </div>
