@@ -60,6 +60,7 @@ function splitStationName(name: string) {
       </div>
       <BikeStationFavorIcon
         :active="bike.isFavor ?? false"
+        labelPosition="right"
         @click.stop="handleFavorite"
       />
     </div>

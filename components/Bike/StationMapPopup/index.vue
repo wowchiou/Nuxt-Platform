@@ -1,9 +1,35 @@
 <script setup lang="ts">
-import { BikeServiceType, type BikeStationWithAvailability } from '~/types/tdx';
+import { type BikeStationWithAvailability } from '~/types/tdx';
 
-defineProps<{
+const props = defineProps<{
   station: BikeStationWithAvailability;
 }>();
+
+const bikeStore = useBikeStore();
+
+const { status: addStatus, execute: addFavor } = useAsyncData(
+  'add-favorite',
+  () => bikeStore.addBikeFavorite(props.station.StationID),
+  { immediate: false }
+);
+
+const { status: removeStatus, execute: removeFavor } = useAsyncData(
+  'remove-favorite',
+  () => bikeStore.removeBikeFavorite(props.station.StationID),
+  { immediate: false }
+);
+
+const isFetch = computed(
+  () => addStatus.value === 'pending' || removeStatus.value === 'pending'
+);
+
+async function handleFavorite() {
+  if (props.station.isFavor) {
+    await removeFavor();
+    return;
+  }
+  await addFavor();
+}
 
 function splitStationName(name: string) {
   const n = name.split('_');
@@ -15,11 +41,22 @@ function splitStationName(name: string) {
 <template>
   <LPopup :options="{ maxWidth: 300 }">
     <div class="leading-normal">
-      <div class="text-[14px]">
-        {{ splitStationName(station.StationName.Zh_tw) }}
+      <div class="text-[14px] flex items-center relative">
+        <AppLoading
+          class="!bg-white !bg-opacity-50"
+          :showLoader="false"
+          v-if="isFetch"
+        />
+
+        <BikeStationFavorIcon
+          :active="station.isFavor ?? false"
+          labelPosition="left"
+          @click.stop="handleFavorite"
+        />
+        <div class="ml-1">
+          {{ splitStationName(station.StationName.Zh_tw) }}
+        </div>
       </div>
-      <el-divider class="!my-1" />
-      <div>{{ BikeServiceType[station.ServiceType] }}</div>
     </div>
   </LPopup>
 </template>

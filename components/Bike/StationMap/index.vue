@@ -29,6 +29,7 @@ const stations = computed(() => props.bikeStations);
 onMounted(async () => {
   // 獲取使用者位置
   geo.value = await getUserPosition();
+  // 確保leaflet是在client端載入
   showMap.value = true;
 });
 
