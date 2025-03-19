@@ -18,7 +18,7 @@
 
 - **Node.js**：v20.17.0
 - **前端**：Nuxt3、Vue3、TypeScript、Pinia、Tailwind、Element Plus、TDX API
-- **後端**：Supabase（資料庫、身份驗證）
+- **後端**：Nuxt server、Supabase（資料庫、身份驗證）
 
 ---
 
