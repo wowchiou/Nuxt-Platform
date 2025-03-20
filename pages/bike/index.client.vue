@@ -8,15 +8,15 @@ const authStore = useAuthStore();
 const bikeStore = useBikeStore();
 
 const { userPosition, defaultPosition } = storeToRefs(authStore);
-const { cityName, keyword, bikeCities, bikeStations, activeStation } =
+const { cityName, keyword, bikeCities, bikeStationsWithFavor, activeStation } =
   storeToRefs(bikeStore);
 
 const isShowFavorites = ref(false);
 
 const stations = computed(() => {
-  let ss = bikeStations.value;
+  let ss = bikeStationsWithFavor.value;
   if (keyword.value) {
-    ss = bikeStations.value.filter((s) =>
+    ss = bikeStationsWithFavor.value.filter((s) =>
       s.StationName.Zh_tw.includes(keyword.value)
     );
   }
@@ -55,8 +55,7 @@ async function onMapReady() {
   if (userPosition.value) setMapPosition(userPosition.value);
 
   // 如store已有參數設置網址參數
-  const isStoreHasData = checkIsStoreHasData();
-  if (isStoreHasData) return;
+  if (checkIsStoreHasData()) return;
 
   // 如網址有city參數取得該城市的YouBike站點
   cityName.value = (route.query.city as string) || '';

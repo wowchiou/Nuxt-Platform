@@ -12,8 +12,12 @@ export const useBikeStore = defineStore('bike-store', () => {
 
   const bikeStations = ref<BikeStationWithAvailability[]>([]);
   const activeStation = ref<BikeStationWithAvailability | null>(null);
-
-  const favorList = ref<Tables<'bike_favorite'>[]>([]);
+  const favorList = ref<Tables<'bike_favorite'>['station_id'][]>([]);
+  const bikeStationsWithFavor = computed(() =>
+    bikeStations.value.map((s) => {
+      return { ...s, isFavor: favorList.value.includes(s.StationID) };
+    })
+  );
 
   async function fetchBikeStations(city: string) {
     try {
@@ -29,11 +33,7 @@ export const useBikeStore = defineStore('bike-store', () => {
     try {
       const res = await sbGetBikeFavorite();
       if (res?.data) {
-        const favor = res.data.map((f) => f.station_id);
-        const stationsWithFavor = bikeStations.value.map((s) => {
-          return { ...s, isFavor: favor.includes(s.StationID) };
-        });
-        bikeStations.value = stationsWithFavor;
+        favorList.value = res.data.map((f) => f.station_id);
       }
     } catch (error) {
       console.log(error);
@@ -68,6 +68,7 @@ export const useBikeStore = defineStore('bike-store', () => {
     bikeCities,
     activeStation,
     favorList,
+    bikeStationsWithFavor,
     fetchBikeStations,
     fetchBikeFavorite,
     addBikeFavorite,
