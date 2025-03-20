@@ -10,6 +10,8 @@ const props = defineProps<{
   active: boolean;
 }>();
 
+const isShowFavorites = inject<boolean>('$isShowFavorites', false);
+
 const bikeStore = useBikeStore();
 
 const { status: addStatus, execute: addFavor } = useAsyncData(
@@ -23,6 +25,8 @@ const { status: removeStatus, execute: removeFavor } = useAsyncData(
   () => bikeStore.removeBikeFavorite(props.bike.StationID),
   { immediate: false }
 );
+
+const bikeStation = computed(() => props.bike);
 
 const isFetch = computed(
   () => addStatus.value === 'pending' || removeStatus.value === 'pending'
@@ -55,11 +59,12 @@ function splitStationName(name: string) {
     />
 
     <div class="text-[14px] flex justify-between items-start">
-      <div>
-        {{ splitStationName(bike.StationName.Zh_tw) }}
+      <div class="truncate">
+        {{ splitStationName(bikeStation.StationName.Zh_tw) }}
       </div>
       <BikeStationFavorIcon
-        :active="bike.isFavor ?? false"
+        v-if="isShowFavorites"
+        :active="bikeStation.isFavor ?? false"
         labelPosition="right"
         @click.stop="handleFavorite"
       />
@@ -71,13 +76,13 @@ function splitStationName(name: string) {
       <div
         class="text-red-500"
         :class="{
-          '!text-green-500': bike.availability.ServiceStatus === 1,
+          '!text-green-500': bikeStation.availability.ServiceStatus === 1,
         }"
       >
-        {{ BikeServiceStatus[bike.availability.ServiceStatus] }}
+        {{ BikeServiceStatus[bikeStation.availability.ServiceStatus] }}
       </div>
       <div class="ml-2 text-gray-400">
-        {{ BikeServiceType[bike.ServiceType] }}
+        {{ BikeServiceType[bikeStation.ServiceType] }}
       </div>
     </div>
 
@@ -85,16 +90,18 @@ function splitStationName(name: string) {
       class="text-[14px] mt-1 text-gray-500 flex justify-start items-center gap-x-4"
     >
       <div
-        :class="{ 'text-red-500': bike.availability.AvailableRentBikes === 0 }"
+        :class="{
+          'text-red-500': bikeStation.availability.AvailableRentBikes === 0,
+        }"
       >
-        可借：{{ bike.availability.AvailableRentBikes }}
+        可借：{{ bikeStation.availability.AvailableRentBikes }}
       </div>
       <div
         :class="{
-          'text-red-500': bike.availability.AvailableReturnBikes === 0,
+          'text-red-500': bikeStation.availability.AvailableReturnBikes === 0,
         }"
       >
-        可還：{{ bike.availability.AvailableReturnBikes }}
+        可還：{{ bikeStation.availability.AvailableReturnBikes }}
       </div>
     </div>
   </div>

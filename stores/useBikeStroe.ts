@@ -13,6 +13,7 @@ export const useBikeStore = defineStore('bike-store', () => {
   const bikeStations = ref<BikeStationWithAvailability[]>([]);
   const activeStation = ref<BikeStationWithAvailability | null>(null);
   const favorList = ref<Tables<'bike_favorite'>['station_id'][]>([]);
+
   const bikeStationsWithFavor = computed(() =>
     bikeStations.value.map((s) => {
       return { ...s, isFavor: favorList.value.includes(s.StationID) };
@@ -44,7 +45,7 @@ export const useBikeStore = defineStore('bike-store', () => {
   async function addBikeFavorite(stationID: string) {
     try {
       const res = await sbAddBikeFavorite(stationID);
-      if (res?.data) await fetchBikeFavorite();
+      if (res?.data) favorList.value.push(res.data[0].station_id);
     } catch (error) {
       console.log(error);
       throw new Error('新增收藏站點失敗');
@@ -54,7 +55,7 @@ export const useBikeStore = defineStore('bike-store', () => {
   async function removeBikeFavorite(stationID: string) {
     try {
       await sbDeleteBikeFavorite(stationID);
-      await fetchBikeFavorite();
+      favorList.value = favorList.value.filter((id) => id !== stationID);
     } catch (error) {
       console.log(error);
       throw new Error('移除收藏站點失敗');

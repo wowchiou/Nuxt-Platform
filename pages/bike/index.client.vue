@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { BikeStationWithAvailability } from '~/types/tdx';
-import type { ScrollbarInstance } from 'element-plus';
 
 const router = useRouter();
 const route = useRoute();
@@ -12,6 +11,14 @@ const { cityName, keyword, bikeCities, bikeStationsWithFavor, activeStation } =
   storeToRefs(bikeStore);
 
 const isShowFavorites = ref(false);
+provide('$isShowFavorites', isShowFavorites);
+
+const mapLatLng = ref<number[]>(userPosition.value || defaultPosition.value);
+const zoom = ref<number>(16);
+
+const city = computed(() =>
+  bikeCities.value.find((c) => c.City === cityName.value)
+);
 
 const stations = computed(() => {
   let ss = bikeStationsWithFavor.value;
@@ -28,15 +35,6 @@ const stations = computed(() => {
 
 const isFetch = computed(
   () => status.value === 'pending' || favorStatus.value === 'pending'
-);
-
-// 預設地圖初始位置為使用者位置
-const mapLatLng = ref<number[]>(userPosition.value || defaultPosition.value);
-const zoom = ref<number>(16);
-const scrollbarRef = ref<ScrollbarInstance | null>(null);
-
-const city = computed(() =>
-  bikeCities.value.find((c) => c.City === cityName.value)
 );
 
 const { status, execute, error } = useAsyncData(
@@ -96,34 +94,26 @@ async function fetchBikeStation() {
   // 定位查詢的城市經緯座標
   if (!city.value) return;
   setMapPosition(city.value.latlng);
-  scrollToTop();
 }
 
 function searchBikeStation() {
   setRouteQuery({ keyword: keyword.value });
-  scrollToTop();
 }
 
-function setMapPosition(latlng: number[], z = 16) {
+function setMapPosition(latlng: number[]) {
   mapLatLng.value = latlng;
-  // zoom.value = z;
 }
 
 function handleClickCard(bike: BikeStationWithAvailability) {
-  const { StationPosition } = bike;
+  const {
+    StationPosition: { PositionLat, PositionLon },
+  } = bike;
   activeStation.value = bike;
-  setMapPosition(
-    [StationPosition.PositionLat, StationPosition.PositionLon],
-    18
-  );
+  setMapPosition([PositionLat, PositionLon]);
 }
 
 function setRouteQuery(query: Record<string, string>) {
   router.push({ query: { ...route.query, ...query } });
-}
-
-function scrollToTop() {
-  nextTick(() => scrollbarRef.value?.scrollTo({ top: 0 }));
 }
 
 function handleShowFavorite() {
@@ -157,22 +147,15 @@ function handleShowFavorite() {
       >
         <el-divider>{{ isShowFavorites ? '收藏' : 'YouBike' }}站點</el-divider>
 
-        <el-scrollbar ref="scrollbarRef" class="flex-1">
-          <AppLoading
-            v-if="status === 'pending'"
-            :showLoader="false"
-            class="!bg-white !bg-opacity-50"
-          />
-
-          <BikeStationCard
-            v-for="bike in stations"
-            :key="`bike-card-${bike.StationUID}`"
-            :bike="bike"
-            :active="bike.StationUID === activeStation?.StationUID"
-            @click="handleClickCard(bike)"
-          />
-        </el-scrollbar>
+        <BikeStationCardList
+          :key="stations.length"
+          :stations="stations"
+          :activeStation="activeStation"
+          :isShowFavorites="isShowFavorites"
+          @clickCard="handleClickCard"
+        />
       </div>
+
       <el-empty v-else :image-size="30" description="查無站點資料" />
     </div>
 
