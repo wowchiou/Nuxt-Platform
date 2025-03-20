@@ -14,7 +14,6 @@ const isShowFavorites = ref(false);
 provide('$isShowFavorites', isShowFavorites);
 
 const mapLatLng = ref<number[]>(userPosition.value || defaultPosition.value);
-const zoom = ref<number>(16);
 
 const city = computed(() =>
   bikeCities.value.find((c) => c.City === cityName.value)
@@ -105,11 +104,7 @@ function setMapPosition(latlng: number[]) {
 }
 
 function handleClickCard(bike: BikeStationWithAvailability) {
-  const {
-    StationPosition: { PositionLat, PositionLon },
-  } = bike;
   activeStation.value = bike;
-  setMapPosition([PositionLat, PositionLon]);
 }
 
 function setRouteQuery(query: Record<string, string>) {
@@ -164,7 +159,6 @@ function handleShowFavorite() {
         :bikeStations="stations"
         :activeStation="activeStation"
         :mapLatLng="mapLatLng"
-        :zoom="zoom"
         :loading="isFetch"
         @ready="onMapReady"
       />

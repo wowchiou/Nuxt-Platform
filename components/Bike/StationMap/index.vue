@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import L from 'leaflet';
-import { LMarker } from '#components';
+import { LMarker, LMap } from '#components';
 import { type BikeStationWithAvailability } from '~/types/tdx';
+import { LMarkerClusterGroup } from 'vue-leaflet-markercluster';
 
+const { $L } = useNuxtApp();
 // 不載入預設的leaflet icon
-delete (L.Icon.Default.prototype as any)._getIconUrl;
+delete ($L.Icon.Default.prototype as any)._getIconUrl;
 
 const props = defineProps<{
   bikeStations: BikeStationWithAvailability[];
   mapLatLng: number[];
-  zoom: number;
   activeStation: BikeStationWithAvailability | null;
   loading: boolean;
 }>();
@@ -22,8 +22,10 @@ const authStore = useAuthStore();
 const { userPosition } = storeToRefs(authStore);
 const { activeStation } = storeToRefs(useBikeStore());
 const isGeoReady = ref(false);
-const showMap = ref(false);
 const geo = ref();
+
+const showMap = ref(false);
+const map = ref<InstanceType<typeof LMap>>();
 const markers = ref<InstanceType<typeof LMarker>[]>([]);
 
 const stations = computed(() => props.bikeStations);
@@ -37,7 +39,10 @@ watch(activeStation, (station) => {
         coords[1] === station.StationPosition.PositionLon
       );
     });
-    if (!m || !m.leafletObject) return;
+
+    if (!m?.leafletObject || !map.value?.leafletObject) return;
+
+    map.value?.leafletObject.setView(m.leafletObject.getLatLng(), 18);
     m.leafletObject.openPopup();
   }
 });
@@ -77,8 +82,9 @@ function rejectGeo() {
     <AppLoading v-if="loading || !isGeoReady" />
     <LMap
       v-if="showMap"
+      ref="map"
       class="absolute w-full h-full top-0 left-0"
-      :zoom
+      :zoom="16"
       :center="[mapLatLng[0], mapLatLng[1]]"
       :use-global-leaflet="true"
       @ready="onReady"
@@ -92,24 +98,27 @@ function rejectGeo() {
         <MapUserLocationIcon />
       </LMarker>
 
+      <!-- 請在這裡幫我把這邊的marker用leaflet.markercluster -->
       <template v-if="stations.length">
-        <LMarker
-          v-for="bike in stations"
-          :key="`bike-marker-${bike.StationUID}`"
-          ref="markers"
-          :lat-lng="[
-            bike.StationPosition.PositionLat,
-            bike.StationPosition.PositionLon,
-          ]"
-          @click="setActiveStation(bike)"
-        >
-          <BikeStationMapIcon
-            :active="bike.StationUID === activeStation?.StationUID"
-            :station="bike"
-          />
+        <LMarkerClusterGroup>
+          <LMarker
+            v-for="bike in stations"
+            :key="`bike-marker-${bike.StationUID}`"
+            ref="markers"
+            :lat-lng="[
+              bike.StationPosition.PositionLat,
+              bike.StationPosition.PositionLon,
+            ]"
+            @click="setActiveStation(bike)"
+          >
+            <BikeStationMapIcon
+              :active="bike.StationUID === activeStation?.StationUID"
+              :station="bike"
+            />
 
-          <BikeStationMapPopup :station="bike" />
-        </LMarker>
+            <BikeStationMapPopup :station="bike" />
+          </LMarker>
+        </LMarkerClusterGroup>
 
         <BikeStationMapDetail v-if="activeStation" :station="activeStation" />
       </template>
