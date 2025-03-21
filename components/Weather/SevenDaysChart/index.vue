@@ -2,7 +2,6 @@
 import * as echarts from 'echarts';
 import { ElementName } from '~/types/weather';
 import moment from 'moment';
-import { formatter } from 'element-plus';
 
 const {
   chartColor,
@@ -21,7 +20,7 @@ const {
 const weatherStore = useWeatherStore();
 const { cityName, get7DaysElement } = storeToRefs(weatherStore);
 const chartRef = ref<HTMLElement | null>(null);
-const chart = ref();
+const chart = ref<echarts.ECharts>();
 
 const maxT = computed(() => {
   return get7DaysElement.value(ElementName['最高溫度']).reduce((acc, itm) => {
@@ -51,6 +50,7 @@ onMounted(async () => {
 
 onUnmounted(() => {
   window.removeEventListener('resize', resizeChart);
+  if (chart.value) chart.value.dispose();
 });
 
 watch(cityName, initChart);
@@ -69,7 +69,6 @@ function initChart() {
 
 function resizeChart() {
   if (!chart.value) return;
-
   chart.value.dispose();
   initChart();
 }

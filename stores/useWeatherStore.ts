@@ -60,6 +60,7 @@ export const useWeatherStore = defineStore('weather-store', () => {
     try {
       const res = await getHoursWeather();
       weatherHours.value = res.records.Locations[0].Location;
+      return res;
     } catch (error) {
       errorHandler(error as WeatherError);
     }
@@ -70,6 +71,7 @@ export const useWeatherStore = defineStore('weather-store', () => {
     try {
       const res = await get7DaysWeather();
       weather7Days.value = res.records.Locations[0].Location;
+      return res;
     } catch (error) {
       errorHandler(error as WeatherError);
     }

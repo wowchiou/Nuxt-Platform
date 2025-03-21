@@ -19,7 +19,7 @@ const {
 const weatherStore = useWeatherStore();
 const { cityName, get7DaysElement } = storeToRefs(weatherStore);
 const chartRef = ref<HTMLElement | null>(null);
-const chart = ref();
+const chart = ref<echarts.ECharts>();
 
 const { execute } = useAsyncData(
   'get-7-days-weather',
@@ -35,6 +35,7 @@ onMounted(async () => {
 
 onUnmounted(() => {
   window.removeEventListener('resize', resizeChart);
+  if (chart.value) chart.value.dispose();
 });
 
 watch(cityName, initChart);
