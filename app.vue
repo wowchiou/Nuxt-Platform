@@ -47,7 +47,7 @@ useSeoMeta({
 
 <template>
   <NuxtRouteAnnouncer />
-  <AppLoading class="!fixed" v-if="status === 'pending'" />
+  <AppLoading class="!fixed w-screen h-screen" v-if="status === 'pending'" />
 
   <NuxtLayout v-else>
     <AppError v-if="errorStore.activeError" />
