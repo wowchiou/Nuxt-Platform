@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const authStore = useAuthStore();
 const trelloStore = useTrelloStore();
 const { trelloProjects, activeTrello } = storeToRefs(trelloStore);
 const dialogVisible = ref(false);
@@ -12,6 +13,7 @@ const { status, execute } = useAsyncData(
 );
 
 const openDialog = () => {
+  authStore.checkIsLogin();
   dialogVisible.value = true;
 };
 

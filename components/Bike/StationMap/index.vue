@@ -19,7 +19,7 @@ const emits = defineEmits<{
 }>();
 
 const authStore = useAuthStore();
-const { userPosition } = storeToRefs(authStore);
+const { user, userPosition } = storeToRefs(authStore);
 const { activeStation } = storeToRefs(useBikeStore());
 const isGeoReady = ref(false);
 const geo = ref();
@@ -103,7 +103,7 @@ function rejectGeo() {
         <LMarkerClusterGroup>
           <LMarker
             v-for="bike in stations"
-            :key="`bike-marker-${bike.StationUID}`"
+            :key="`bike-marker-${bike.StationUID}-${user?.id ?? 0}`"
             ref="markers"
             :lat-lng="[
               bike.StationPosition.PositionLat,

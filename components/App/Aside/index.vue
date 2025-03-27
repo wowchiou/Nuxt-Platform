@@ -1,14 +1,20 @@
 <script setup lang="ts">
 const route = useRoute();
 const currentRoute = computed(() => route.path);
+
+const defaultOpeneds = computed(() => APP_MENU_LIST.map((menu) => menu.title));
 </script>
 
 <template>
   <div class="border-r bg-white">
     <el-scrollbar>
-      <el-menu :default-active="currentRoute" class="!border-none">
+      <el-menu
+        :default-active="currentRoute"
+        class="!border-none"
+        :default-openeds="defaultOpeneds"
+      >
         <el-sub-menu
-          v-for="(menu, index) in APP_MENU_LIST"
+          v-for="menu in APP_MENU_LIST"
           :key="`menu-list-${menu.title}`"
           class="select-none"
           :index="menu.title"

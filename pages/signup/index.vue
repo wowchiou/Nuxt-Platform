@@ -10,17 +10,16 @@ const form = ref({
 
 const rules = ref(createSignupRules(form));
 
-const {
-  data: isRegister,
-  execute: register,
-  status,
-} = useAsyncData('register', () => useAuthStore().signup(form.value), {
-  immediate: false,
-});
+const { data, execute, status } = useAsyncData(
+  'register',
+  () => useAuthStore().signup(form.value),
+  { immediate: false }
+);
 
 const handleSubmit = submitForm(async () => {
-  await register();
-  if (isRegister.value) navigateTo('/trello', { replace: true });
+  await execute();
+  if (!data.value) return;
+  window.location.href = '/';
 });
 
 definePageMeta({

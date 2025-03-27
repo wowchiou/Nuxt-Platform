@@ -29,9 +29,9 @@ async function checkAuth() {
   const isBlockWhenLoggedIn = blockList.includes(route.path);
 
   // 如果需要登入但未登入
-  if (!isBlockWhenLoggedIn && !isLogin) {
-    return navigateTo('/signin');
-  }
+  // if (!isBlockWhenLoggedIn && !isLogin) {
+  //   return navigateTo('/signin');
+  // }
   // 如果已登入但試圖進入登入或註冊頁，導回首頁
   if (isBlockWhenLoggedIn && isLogin) {
     return navigateTo('/');

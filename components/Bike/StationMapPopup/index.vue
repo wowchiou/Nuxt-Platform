@@ -5,6 +5,7 @@ const props = defineProps<{
   station: BikeStationWithAvailability;
 }>();
 
+const authStore = useAuthStore();
 const bikeStore = useBikeStore();
 
 const { status: addStatus, execute: addFavor } = useAsyncData(
@@ -19,11 +20,13 @@ const { status: removeStatus, execute: removeFavor } = useAsyncData(
   { immediate: false }
 );
 
-const isFetch = computed(
+const isFetching = computed(
   () => addStatus.value === 'pending' || removeStatus.value === 'pending'
 );
 
 async function handleFavorite() {
+  // 如果未登入，則跳轉至登入頁
+  authStore.checkIsLogin();
   if (props.station.isFavor) {
     await removeFavor();
     return;
@@ -45,7 +48,7 @@ function splitStationName(name: string) {
         <AppLoading
           class="!bg-white !bg-opacity-50"
           :showLoader="false"
-          v-if="isFetch"
+          v-if="isFetching"
         />
 
         <BikeStationFavorIcon

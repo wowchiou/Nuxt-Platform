@@ -10,6 +10,8 @@ export const useAuthStore = defineStore('auth-store', () => {
   const isAuthTracking = ref(false);
   const loadingProfile = ref(false);
 
+  const isLogin = computed(() => user.value && profile.value);
+
   const {
     sbGetProfile,
     sbGetSession,
@@ -19,6 +21,12 @@ export const useAuthStore = defineStore('auth-store', () => {
     sbSignout,
     sbSignup,
   } = useSupabase();
+
+  function checkIsLogin() {
+    if (!isLogin.value) {
+      return navigateTo(`/signin?redirect=${useRoute().path}`);
+    }
+  }
 
   function setUserPosition(position: number[]) {
     userPosition.value = position;
@@ -118,6 +126,7 @@ export const useAuthStore = defineStore('auth-store', () => {
   return {
     user,
     profile,
+    isLogin,
     userPosition,
     defaultPosition,
     setUserPosition,
@@ -129,5 +138,6 @@ export const useAuthStore = defineStore('auth-store', () => {
     setAuth,
     setProfile,
     updateProfile,
+    checkIsLogin,
   };
 });

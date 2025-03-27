@@ -8,17 +8,21 @@ const form = ref({
 
 const rules = ref(signinRules);
 
-const {
-  data: isLogin,
-  execute: login,
-  status,
-} = useAsyncData('signin', async () => useAuthStore().signin(form.value), {
-  immediate: false,
-});
+const { data, execute, status } = useAsyncData(
+  'signin',
+  () => useAuthStore().signin(form.value),
+  { immediate: false }
+);
 
 const handleSubmit = submitForm(async () => {
-  await login();
-  if (isLogin.value) navigateTo('/trello', { replace: true });
+  await execute();
+  if (!data.value) return;
+  const redirect = useRoute().query.redirect as string;
+  if (redirect) {
+    window.location.href = redirect;
+  } else {
+    window.location.href = '/';
+  }
 });
 
 definePageMeta({
